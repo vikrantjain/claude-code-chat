@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "claude-chat": {
+      "command": "bun",
+      "args": ["/app/src/client.ts"]
+    }
+  }
+}

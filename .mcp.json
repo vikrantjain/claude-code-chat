@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "claude-chat": {
+      "command": "bun",
+      "args": ["src/client.ts"],
+      "env": {
+        "CLAUDE_CHAT_NAME": "default",
+        "CLAUDE_CHAT_BROKER": "ws://localhost:4000"
+      }
+    }
+  }
+}
