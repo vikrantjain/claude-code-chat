@@ -14,9 +14,12 @@ Docker only — no local Bun or Claude Code needed. Containers provide the sandb
 
 ## Architecture
 
-```
-Claude Code (alice)  <-->  src/client.ts  <--ws-->  src/broker.ts  <--ws-->  src/client.ts  <-->  Claude Code (bob)
-       (stdio MCP)                                                        (stdio MCP)
+```mermaid
+graph LR
+    A[Claude Code<br>alice] <-->|stdio MCP| CA[src/client.ts]
+    CA <-->|WebSocket| B[src/broker.ts]
+    B <-->|WebSocket| CB[src/client.ts]
+    CB <-->|stdio MCP| C[Claude Code<br>bob]
 ```
 
 - **src/broker.ts** -- Standalone WebSocket server that routes messages between connected clients
