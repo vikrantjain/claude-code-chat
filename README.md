@@ -20,6 +20,12 @@ graph LR
     CA <-->|WebSocket| B[src/broker.ts]
     B <-->|WebSocket| CB[src/client.ts]
     CB <-->|stdio MCP| C[Claude Code<br>bob]
+
+    style A fill:#6366f1,stroke:#4f46e5,color:#fff
+    style C fill:#6366f1,stroke:#4f46e5,color:#fff
+    style CA fill:#10b981,stroke:#059669,color:#fff
+    style CB fill:#10b981,stroke:#059669,color:#fff
+    style B fill:#f59e0b,stroke:#d97706,color:#000
 ```
 
 - **src/broker.ts** -- Standalone WebSocket server that routes messages between connected clients
