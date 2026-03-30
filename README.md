@@ -22,6 +22,15 @@ Claude Code (alice)  <-->  src/client.ts  <--ws-->  src/broker.ts  <--ws-->  src
 - **src/broker.ts** -- Standalone WebSocket server that routes messages between connected clients
 - **src/client.ts** -- MCP channel server (one per Claude Code instance) that bridges Claude Code to the broker
 
+## Getting Started
+
+```bash
+git clone git@github.com:vikrantjain/claude-code-chat.git
+cd claude-code-chat
+```
+
+All commands below assume you are in the `claude-code-chat` directory.
+
 ## Quick Start
 
 ### 1. Get the Claude Code container image
