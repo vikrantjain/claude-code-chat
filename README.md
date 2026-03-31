@@ -171,11 +171,11 @@ Watch both terminals — you'll see the agents chatting back and forth in real t
 
 ## Example: Collaborative App Development
 
-Three agents — a manager, and two developers — work together to build an app. The manager breaks down the task, assigns work, coordinates the API contract, and verifies the result. All agents share a Docker volume as their workspace.
+Three agents — a manager, and two developers — work together to build an app. The manager breaks down the task, assigns work, coordinates the API contract, and verifies the result. All agents share a workspace directory via bind mount.
 
 ### Quick launch (recommended)
 
-Requires [tmux](https://github.com/tmux/tmux). A script automates the full setup — network, volume, broker, and all three agents in a tiled layout:
+Requires [tmux](https://github.com/tmux/tmux). A script automates the full setup — network, workspace, broker, and all three agents in a tiled layout:
 
 ```bash
 export CLAUDE_CODE_OAUTH_TOKEN=<your-token>
@@ -187,8 +187,8 @@ Override the model with `CLAUDE_CHAT_MODEL=sonnet ./start-collab.sh`.
 Use `Ctrl-b` + arrow keys to switch between panes. When done:
 
 ```bash
-./stop-collab.sh          # stop containers, keep workspace volume
-./stop-collab.sh --purge  # also remove workspace volume and network
+./stop-collab.sh          # stop containers, keep workspace directory
+./stop-collab.sh --purge  # also remove workspace directory and network
 ```
 
 ### Manual setup
@@ -196,10 +196,10 @@ Use `Ctrl-b` + arrow keys to switch between panes. When done:
 <details>
 <summary>Step-by-step instructions without the tmux script</summary>
 
-#### 1. Create a shared workspace volume
+#### 1. Create a shared workspace directory
 
 ```bash
-docker volume create workspace
+mkdir -p .workspace && chmod 777 .workspace
 ```
 
 #### 2. Start the broker and agents
@@ -219,7 +219,7 @@ docker run --rm -it \
   -v "$PWD/bun.lock:/app/bun.lock:ro" \
   -v "$PWD/docker/entrypoint.sh:/app/docker/entrypoint.sh:ro" \
   -v "$PWD/docker/.mcp.json:/app/.mcp.json:ro" \
-  -v workspace:/app/workspace \
+  -v "$PWD/.workspace":/app/workspace \
   --name "$AGENT_NAME" \
   -e CLAUDE_CODE_OAUTH_TOKEN \
   -e CLAUDE_CHAT_NAME="$AGENT_NAME" \
@@ -227,7 +227,7 @@ docker run --rm -it \
   claude-code \
   --model haiku \
   -n "$AGENT_NAME" \
-  --append-system-prompt "Your name is $AGENT_NAME. You are a project manager. You break tasks into subtasks, assign them to developer agents (alice and bob), coordinate their work, and verify the final result. If verification fails, send the issues back to the responsible developer for fixing until everything works. All code should be written in /app/workspace." \
+  --append-system-prompt "Your name is $AGENT_NAME. You are a project manager. You break tasks into subtasks, assign them to developer agents (alice and bob), coordinate their work, and verify the final result. When assigning tasks, always ask the developer to send you a message when they are done. If verification fails, send the issues back to the responsible developer for fixing until everything works. All code should be written in /app/workspace." \
   --dangerously-skip-permissions \
   --dangerously-load-development-channels server:claude-chat \
   --allowedTools '*'
@@ -246,7 +246,7 @@ docker run --rm -it \
   -v "$PWD/bun.lock:/app/bun.lock:ro" \
   -v "$PWD/docker/entrypoint.sh:/app/docker/entrypoint.sh:ro" \
   -v "$PWD/docker/.mcp.json:/app/.mcp.json:ro" \
-  -v workspace:/app/workspace \
+  -v "$PWD/.workspace":/app/workspace \
   --name "$AGENT_NAME" \
   -e CLAUDE_CODE_OAUTH_TOKEN \
   -e CLAUDE_CHAT_NAME="$AGENT_NAME" \
@@ -254,7 +254,7 @@ docker run --rm -it \
   claude-code \
   --model haiku \
   -n "$AGENT_NAME" \
-  --append-system-prompt "Your name is $AGENT_NAME. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. Report progress and completion back to the manager." \
+  --append-system-prompt "Your name is $AGENT_NAME. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. When you finish your assigned task, send a message to the manager confirming what you completed." \
   --dangerously-skip-permissions \
   --dangerously-load-development-channels server:claude-chat \
   --allowedTools '*'
@@ -273,7 +273,7 @@ docker run --rm -it \
   -v "$PWD/bun.lock:/app/bun.lock:ro" \
   -v "$PWD/docker/entrypoint.sh:/app/docker/entrypoint.sh:ro" \
   -v "$PWD/docker/.mcp.json:/app/.mcp.json:ro" \
-  -v workspace:/app/workspace \
+  -v "$PWD/.workspace":/app/workspace \
   --name "$AGENT_NAME" \
   -e CLAUDE_CODE_OAUTH_TOKEN \
   -e CLAUDE_CHAT_NAME="$AGENT_NAME" \
@@ -281,7 +281,7 @@ docker run --rm -it \
   claude-code \
   --model haiku \
   -n "$AGENT_NAME" \
-  --append-system-prompt "Your name is $AGENT_NAME. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. Report progress and completion back to the manager." \
+  --append-system-prompt "Your name is $AGENT_NAME. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. When you finish your assigned task, send a message to the manager confirming what you completed." \
   --dangerously-skip-permissions \
   --dangerously-load-development-channels server:claude-chat \
   --allowedTools '*'
@@ -302,11 +302,11 @@ Watch all three terminals — the manager will coordinate while alice and bob bu
 
 ### 4. View the result
 
-Once the agents are done, run the app from the shared volume:
+Once the agents are done, run the app from the shared workspace:
 
 ```bash
 docker run --rm -it \
-  -v workspace:/app \
+  -v "$PWD/.workspace":/app \
   -p 3000:3000 \
   -w /app \
   oven/bun:1-debian bun run server.ts
@@ -316,7 +316,7 @@ Open `http://localhost:3000` in your browser to see the finished app.
 
 > **Note:** The exact startup command depends on what the agents built. Check the workspace contents first if the command above doesn't work:
 > ```bash
-> docker run --rm -v workspace:/app busybox ls -la /app
+> ls -la .workspace
 > ```
 
 ## Configuration

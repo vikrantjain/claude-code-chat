@@ -43,10 +43,11 @@ Bun.serve({
       }
 
       if (msg.type === "message") {
-        const outgoing = { type: "message", from, text: msg.text, ...(msg.to && { to: msg.to }) };
-        if (msg.to) {
+        const target = msg.to?.toLowerCase();
+        const outgoing = { type: "message", from, text: msg.text, ...(target && { to: target }) };
+        if (target) {
           for (const [sock, name] of clients) {
-            if (name === msg.to) {
+            if (name === target) {
               sock.send(JSON.stringify(outgoing));
               return;
             }

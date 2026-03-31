@@ -12,7 +12,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SESSION="claude-collab"
 NETWORK="claude-chat"
-VOLUME="workspace"
+WORKSPACE="$PROJECT_DIR/.workspace"
 BROKER_IMAGE="oven/bun:1-debian"
 CLIENT_IMAGE="claude-code"
 MODEL="${CLAUDE_CHAT_MODEL:-haiku}"
@@ -25,7 +25,7 @@ fi
 
 # Ensure Docker prerequisites exist
 docker network inspect "$NETWORK" >/dev/null 2>&1 || docker network create "$NETWORK"
-docker volume inspect "$VOLUME" >/dev/null 2>&1 || docker volume create "$VOLUME"
+mkdir -p "$WORKSPACE" && chmod 777 "$WORKSPACE"
 
 # Stop any leftover containers from a previous run
 for name in claude-chat-broker manager alice bob; do
@@ -45,7 +45,7 @@ docker run --rm -it \\
   -v "$PROJECT_DIR/bun.lock:/app/bun.lock:ro" \\
   -v "$PROJECT_DIR/docker/entrypoint.sh:/app/docker/entrypoint.sh:ro" \\
   -v "$PROJECT_DIR/docker/.mcp.json:/app/.mcp.json:ro" \\
-  -v $VOLUME:/app/workspace \\
+  -v "$WORKSPACE":/app/workspace \\
   --name "$agent_name" \\
   -e CLAUDE_CODE_OAUTH_TOKEN="$CLAUDE_CODE_OAUTH_TOKEN" \\
   -e CLAUDE_CHAT_NAME="$agent_name" \\
@@ -65,9 +65,9 @@ BROKER_CMD="docker run --rm -it --name claude-chat-broker \
   -v \"$PROJECT_DIR/src/broker.ts:/app/src/broker.ts:ro\" \
   -w /app $BROKER_IMAGE bun run src/broker.ts"
 
-MANAGER_PROMPT="Your name is manager. You are a project manager. You break tasks into subtasks, assign them to developer agents (alice and bob), coordinate their work, and verify the final result. If verification fails, send the issues back to the responsible developer for fixing until everything works. All code should be written in /app/workspace."
-ALICE_PROMPT="Your name is alice. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. Report progress and completion back to the manager."
-BOB_PROMPT="Your name is bob. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. Report progress and completion back to the manager."
+MANAGER_PROMPT="Your name is manager. You are a project manager. You break tasks into subtasks, assign them to developer agents (alice and bob), coordinate their work, and verify the final result. When assigning tasks, always ask the developer to send you a message when they are done. If verification fails, send the issues back to the responsible developer for fixing until everything works. All code should be written in /app/workspace."
+ALICE_PROMPT="Your name is alice. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. When you finish your assigned task, send a message to the manager confirming what you completed."
+BOB_PROMPT="Your name is bob. You are a developer agent. You write code in /app/workspace as assigned by the manager. When you need to agree on interfaces, discuss with the other developer. When you finish your assigned task, send a message to the manager confirming what you completed."
 
 MANAGER_CMD=$(client_cmd "manager" "$MANAGER_PROMPT")
 ALICE_CMD=$(client_cmd "alice" "$ALICE_PROMPT")
@@ -89,17 +89,19 @@ tmux split-window -h -t "$SESSION:collab"    # right pane
 tmux split-window -v -t "$SESSION:collab.0"  # bottom-left
 tmux split-window -v -t "$SESSION:collab.1"  # bottom-right
 
-# Send commands to each pane
-# Pane 0: broker (already running)
-# Pane 1: bob (top-right after splits)
-# Pane 2: manager (bottom-left)
-# Pane 3: alice (bottom-right)
+# Label each pane and send commands
+tmux select-pane -t "$SESSION:collab.0" -T "broker"
+tmux select-pane -t "$SESSION:collab.1" -T "bob"
 tmux send-keys -t "$SESSION:collab.1" "$BOB_CMD" C-m
+tmux select-pane -t "$SESSION:collab.2" -T "manager"
 tmux send-keys -t "$SESSION:collab.2" "$MANAGER_CMD" C-m
+tmux select-pane -t "$SESSION:collab.3" -T "alice"
 tmux send-keys -t "$SESSION:collab.3" "$ALICE_CMD" C-m
 
-# Even out the layout
+# Even out the layout and show pane titles in borders
 tmux select-layout -t "$SESSION:collab" tiled
+tmux set-option -t "$SESSION" pane-border-status top
+tmux set-option -t "$SESSION" pane-border-format " #{pane_title} "
 
 # Attach
 tmux attach-session -t "$SESSION"

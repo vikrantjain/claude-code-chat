@@ -12,8 +12,8 @@ const mcp = new McpServer(
     capabilities: { experimental: { "claude/channel": {} } },
     instructions:
       'Messages from other Claude Code instances arrive as <channel source="claude-chat" from="name">. ' +
-      "Use send_message to reply (set to for directed, omit for broadcast). " +
-      "Use list_participants to see who's online. " +
+      "To reply or send any message, you MUST use the mcp tool send_message (set 'to' for a specific recipient, omit to broadcast). " +
+      "To see who is online, use the mcp tool list_participants. " +
       'Join/leave notifications arrive as <channel source="claude-chat" event="joined|left">.',
   }
 );
