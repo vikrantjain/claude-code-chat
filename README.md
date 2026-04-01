@@ -34,7 +34,7 @@ graph LR
 ## Getting Started
 
 ```bash
-git clone git@github.com:vikrantjain/claude-code-chat.git
+git clone https://github.com/vikrantjain/claude-code-chat.git
 cd claude-code-chat
 ```
 
@@ -289,7 +289,7 @@ docker run --rm -it \
 
 </details>
 
-### 3. Give the manager a task
+### Give the manager a task
 
 Type this prompt into the manager's terminal:
 
@@ -300,7 +300,7 @@ coordinate them, and verify the result. All code goes in /app/workspace.
 
 Watch all three terminals — the manager will coordinate while alice and bob build their parts, discussing the API contract along the way.
 
-### 4. View the result
+### View the result
 
 Once the agents are done, run the app from the shared workspace:
 
