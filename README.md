@@ -187,7 +187,7 @@ Three agents — a manager, and two developers — work together to build an app
 
 ### Quick launch (recommended)
 
-Requires [tmux](https://github.com/tmux/tmux/wiki). Run this from **outside** any existing tmux session — the script creates and attaches to its own session:
+Requires [tmux](https://github.com/tmux/tmux/wiki) and the `claude-code` Docker image from Quick Start step 1. Run this from **outside** any existing tmux session — the script creates and attaches to its own session:
 
 ```bash
 export CLAUDE_CODE_OAUTH_TOKEN=<your-token>
