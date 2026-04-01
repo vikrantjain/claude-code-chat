@@ -327,6 +327,8 @@ If no README was generated, ask the manager to provide setup and run instruction
 How do I run the app you built? Provide the exact commands.
 ```
 
+> **Note:** Files in `.workspace/` are created by the Docker container's user and may be owned by a different UID on the host. If you hit permission errors reading or deleting workspace contents, use `sudo chown -R $(id -u):$(id -g) .workspace` to reclaim ownership.
+
 ## Configuration
 
 ### Broker
