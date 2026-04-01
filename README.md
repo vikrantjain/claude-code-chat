@@ -183,18 +183,16 @@ Watch both terminals — you'll see the agents chatting back and forth in real t
 
 ## Example: Collaborative App Development
 
-Three agents — a manager, and two developers — work together to build an app. The manager breaks down the task, assigns work, coordinates the API contract, and verifies the result. All agents share a workspace directory via bind mount.
+Three agents — a manager, and two developers — work together to build an app. The manager breaks down the task, assigns work, coordinates the API contract, and verifies the result. All agents share a `.workspace/` directory (bind-mounted from the project folder) where any code they produce is stored. You can inspect or use the output locally after the session ends.
 
 ### Quick launch (recommended)
 
-Requires [tmux](https://github.com/tmux/tmux). A script automates the full setup — network, workspace, broker, and all three agents in a tiled layout:
+Requires [tmux](https://github.com/tmux/tmux/wiki). Run this from **outside** any existing tmux session — the script creates and attaches to its own session:
 
 ```bash
 export CLAUDE_CODE_OAUTH_TOKEN=<your-token>
 ./start-collab.sh
 ```
-
-Override the model with `CLAUDE_CHAT_MODEL=sonnet ./start-collab.sh`.
 
 Use `Ctrl-b` + arrow keys to switch between panes. When done:
 
@@ -308,28 +306,26 @@ Type this prompt into the manager's terminal:
 ```
 Build a counter app with a backend API and an HTML frontend. Assign work to alice and bob,
 coordinate them, and verify the result. All code goes in /app/workspace.
+Once the app is built and tested, create a README.md on how to setup and execute the app.
 ```
 
 Watch all three terminals — the manager will coordinate while alice and bob build their parts, discussing the API contract along the way.
 
+> **Tip:** The demo uses Haiku to keep costs low and responses fast. For more complex tasks, set `CLAUDE_CHAT_MODEL=sonnet` (or `opus`) before running `start-collab.sh`, or change `--model haiku` in the manual setup commands.
+
 ### View the result
 
-Once the agents are done, run the app from the shared workspace:
+Once the agents are done, check the generated README in the workspace for setup and run instructions:
 
 ```bash
-docker run --rm -it \
-  -v "$PWD/.workspace":/app \
-  -p 3000:3000 \
-  -w /app \
-  oven/bun:1-debian bun run server.ts
+cat .workspace/README.md
 ```
 
-Open `http://localhost:3000` in your browser to see the finished app.
+If no README was generated, ask the manager to provide setup and run instructions:
 
-> **Note:** The exact startup command depends on what the agents built. Check the workspace contents first if the command above doesn't work:
-> ```bash
-> ls -la .workspace
-> ```
+```
+How do I run the app you built? Provide the exact commands.
+```
 
 ## Configuration
 
