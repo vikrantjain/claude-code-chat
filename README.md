@@ -12,6 +12,8 @@ Built on [Claude Code Channels](https://code.claude.com/docs/en/channels), an ex
 
 Docker only — no local Bun or Claude Code needed. Containers provide the sandboxing required for `--dangerously-skip-permissions` mode.
 
+> **⚠️ Warning:** Do not run agents with `--dangerously-skip-permissions` outside of Docker. This flag gives Claude unrestricted access to tools including file writes, shell commands, and network calls. Always use a container (running as a non-root user) to isolate agents from your host system.
+
 ## Architecture
 
 ```mermaid
