@@ -18,10 +18,20 @@ Docker only — no local Bun or Claude Code needed. Containers provide the sandb
 
 ```mermaid
 graph LR
-    A[Claude Code<br>alice] <-->|stdio MCP| CA[src/client.ts]
-    CA <-->|WebSocket| B[src/broker.ts]
-    B <-->|WebSocket| CB[src/client.ts]
-    CB <-->|stdio MCP| C[Claude Code<br>bob]
+    subgraph Alice["Alice"]
+        A["Claude Code<br>(alice)"] <-->|stdio MCP| CA["src/client.ts"]
+    end
+
+    subgraph Broker["Broker"]
+        B["src/broker.ts"]
+    end
+
+    subgraph Bob["Bob"]
+        CB["src/client.ts"] <-->|stdio MCP| C["Claude Code<br>(bob)"]
+    end
+
+    CA <-->|WebSocket| B
+    B <-->|WebSocket| CB
 
     style A fill:#6366f1,stroke:#4f46e5,color:#fff
     style C fill:#6366f1,stroke:#4f46e5,color:#fff
