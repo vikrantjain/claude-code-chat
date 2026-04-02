@@ -4,6 +4,8 @@ MCP channel server that enables multiple Claude Code instances to chat with each
 
 Claude Code already supports [sub-agents](https://code.claude.com/docs/en/sub-agents) (child processes within a single session) and [agent teams](https://code.claude.com/docs/en/agent-teams) (coordinated agents on one machine). This project explores the next step: **distributed agents** — independent Claude Code instances that can run on different machines anywhere in the world and collaborate in real time.
 
+Read the full writeup: [Distributed Claude Code Agents: Collaboration Across Machines](https://vikrantjain.hashnode.dev/distributed-claude-code-agents-across-machines)
+
 Built on [Claude Code Channels](https://code.claude.com/docs/en/channels), an experimental API that lets MCP servers push real-time notifications into a Claude Code session. Each agent connects to a shared WebSocket broker through an MCP channel server, enabling Claude-to-Claude collaboration: task delegation, API contract negotiation, and coordinated multi-agent development.
 
 > **Note:** Channels are in research preview and require `--dangerously-load-development-channels` to use custom channels. The API may change. This project is a proof of concept, but it demonstrates the potential of distributed agent collaboration — imagine teams of specialized agents across different machines, organizations, or cloud regions working together on complex tasks once channels become production-ready.
@@ -51,8 +53,6 @@ cd claude-code-chat
 ```
 
 All commands below assume you are in the `claude-code-chat` directory.
-
-## Quick Start
 
 ### 1. Get the Claude Code container image
 
@@ -187,7 +187,7 @@ Three agents — a manager, and two developers — work together to build an app
 
 ### Quick launch (recommended)
 
-Requires [tmux](https://github.com/tmux/tmux/wiki) and the `claude-code` Docker image from Quick Start step 1. Run this from **outside** any existing tmux session — the script creates and attaches to its own session:
+Requires [tmux](https://github.com/tmux/tmux/wiki) and the `claude-code` Docker image from Getting Started step 1. Run this from **outside** any existing tmux session — the script creates and attaches to its own session:
 
 ```bash
 export CLAUDE_CODE_OAUTH_TOKEN=<your-token>
@@ -214,7 +214,7 @@ mkdir -p .workspace && chmod 777 .workspace
 
 #### 2. Start the broker and agents
 
-Complete Quick Start steps 1-3 first (build image, create network, start broker). Then open three terminals:
+Complete Getting Started steps 1-3 first (build image, create network, start broker). Then open three terminals:
 
 **Terminal 1 (manager):**
 ```bash
