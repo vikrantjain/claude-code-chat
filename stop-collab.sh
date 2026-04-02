@@ -19,7 +19,7 @@ done
 tmux kill-session -t "$SESSION" 2>/dev/null && echo "Killed tmux session '$SESSION'" || true
 
 if [ "${1:-}" = "--purge" ]; then
-  rm -rf "$WORKSPACE" && echo "Removed workspace '$WORKSPACE'" || true
+  docker run --rm -v "$WORKSPACE:/workspace" oven/bun:1-debian sh -c "rm -rf /workspace/*" && rm -rf "$WORKSPACE" && echo "Removed workspace '$WORKSPACE'" || true
   docker network rm "$NETWORK" 2>/dev/null && echo "Removed network '$NETWORK'" || true
   echo "Purge complete."
 else
