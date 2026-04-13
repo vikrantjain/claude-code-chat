@@ -201,6 +201,10 @@ Use `Ctrl-b` + arrow keys to switch between panes. When done:
 ./stop-collab.sh --purge  # also remove workspace directory and network
 ```
 
+Here's a recording of a collaboration session launched with `start-collab.sh`:
+
+[![asciicast](https://asciinema.org/a/tI80IiE06r860gJP.svg)](https://asciinema.org/a/tI80IiE06r860gJP)
+
 ### Manual setup
 
 <details>
